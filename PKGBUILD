@@ -24,6 +24,16 @@ _minor=
 # generally, you should keep this enabled
 : "${_import_cachyos_patchset:=yes}"
 
+# include cachyos patchset?
+#
+# generally, you should keep this enabled even with amd cpu ;D
+: "${_import_clearlinux_patchset:=yes}"
+
+# include cachyos patchset?
+#
+# generally, you should keep this enabled
+: "${_import_xanmod_patchset:=yes}"
+
 # select a CPU scheduler
 #
 # possible options & explaination:
@@ -820,6 +830,7 @@ makedepends=(
 )
 
 _patchsource_cachyos="https://raw.githubusercontent.com/cachyos/kernel-patches/master/${_major}"
+_patchsource_custom="https://github.com/iggnas/linux-catgirl-edition/blob/master/patches/"
 _nv_ver=575.57.08
 _nv_pkg="NVIDIA-Linux-x86_64-${_nv_ver}"
 _nv_open_pkg="NVIDIA-kernel-module-source-${_nv_ver}"
@@ -827,6 +838,16 @@ source=(
     "https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.xz"
     "config"
     "${_patchsource_cachyos}/all/0001-cachyos-base-all.patch")
+
+# apply clear liunx patchset
+if [ "$_import_clearlinux_patchset" = "yes" ]; then
+    source+=("${_patchsource_custom}/clear-linux-patches.patch")
+fi
+
+# apply xanmod patchset
+if [ "${_import_xanmod_patchset:=yes}" = "yes" ]; then
+    source+=("${_patchsource_custom}/xanmod-patches.patch")
+fi
 
 # LLVM makedepends
 if _is_lto_kernel; then
