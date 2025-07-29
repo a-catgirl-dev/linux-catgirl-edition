@@ -830,7 +830,7 @@ makedepends=(
 )
 
 _patchsource_cachyos="https://raw.githubusercontent.com/cachyos/kernel-patches/master/${_major}"
-_patchsource_custom="https://github.com/iggnas/linux-catgirl-edition/blob/master/patches/"
+_patchsource_custom="https://raw.githubusercontent.com/iggnas/linux-catgirl-edition/refs/heads/master/patches"
 _nv_ver=575.57.08
 _nv_pkg="NVIDIA-Linux-x86_64-${_nv_ver}"
 _nv_open_pkg="NVIDIA-kernel-module-source-${_nv_ver}"
