@@ -24,10 +24,11 @@ _minor=
 # generally, you should keep this enabled
 : "${_import_cachyos_patchset:=yes}"
 
+# REQUIRES MORE TESTING, FAILS TO APPLY AS OF NOW
 # include cachyos patchset?
 #
 # generally, you should keep this enabled even with amd cpu ;D
-: "${_import_clearlinux_patchset:=yes}"
+# : "${_import_clearlinux_patchset:=yes}"
 
 # include cachyos patchset?
 #
@@ -840,9 +841,9 @@ source=(
     "${_patchsource_cachyos}/all/0001-cachyos-base-all.patch")
 
 # apply clear liunx patchset
-if [ "$_import_clearlinux_patchset" = "yes" ]; then
-    source+=("${_patchsource_custom}/clear-linux-patches.patch")
-fi
+#if [ "$_import_clearlinux_patchset" = "yes" ]; then
+#    source+=("${_patchsource_custom}/clear-linux-patches.patch")
+#fi
 
 # apply xanmod patchset
 if [ "${_import_xanmod_patchset:=yes}" = "yes" ]; then
