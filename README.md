@@ -42,7 +42,7 @@ Review the `PKGBUILD` file to see the tradeoff(s) (if any) in more detail.
 ## size & perf:
 
 - Clang [Thin]LTO;
-- No prink() support. This reduces kernel size (no more strings) and reduces overhead where `printk()` calls are plenty (eg during boot, resume);
+- No printk() support. This reduces kernel size (no more strings) and reduces overhead where `printk()` calls are plenty (eg during boot, resume);
 - Remove scheduler debugging;
 - Trim unused headers to help LTO and optimization if headers are disabled
 
