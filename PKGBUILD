@@ -18,7 +18,7 @@
 # if you are updating the kernel, consider running `git stash && git fetch && git pull && git stash pop` instead
 # of updating these values
 _major=6.16
-_minor=.5
+_minor=.6
 
 # select custom patchset(s)
 #
