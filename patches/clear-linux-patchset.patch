@@ -329,181 +329,50 @@ index a698196377be..5f3ee7c31c8a 100644
 -- 
 https://clearlinux.org
 
-# 0167-net-sock-increase-default-number-of-_SK_MEM_PACKETS-.patch
-
-From 4ba5a01513a6b3487613e7186cac4f3f2f4c5091 Mon Sep 17 00:00:00 2001
-From: Colin Ian King <colin.i.king@intel.com>
-Date: Wed, 24 Apr 2024 16:45:47 +0100
-Subject: [PATCH] net: sock: increase default number of _SK_MEM_PACKETS to 1024
-
-scale these by a factor of 4 to improve socket performance
-
-Signed-off-by: Colin Ian King <colin.i.king@intel.com>
----
- include/net/sock.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 54ca8dcbfb43..9adc51e8085b 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -2903,7 +2903,7 @@ void sk_get_meminfo(const struct sock *sk, u32 *meminfo);
-  * platforms.  This makes socket queueing behavior and performance
-  * not depend upon such differences.
-  */
--#define _SK_MEM_PACKETS		256
-+#define _SK_MEM_PACKETS		1024
- #define _SK_MEM_OVERHEAD	SKB_TRUESIZE(256)
- #define SK_WMEM_MAX		(_SK_MEM_OVERHEAD * _SK_MEM_PACKETS)
- #define SK_RMEM_MAX		(_SK_MEM_OVERHEAD * _SK_MEM_PACKETS)
--- 
-2.44.0
-
-# 0166-sched-fair-remove-upper-limit-on-cpu-number.patch
-
-From 362f86369d1930ad177acaa47225d24d26b02c8d Mon Sep 17 00:00:00 2001
-From: Colin Ian King <colin.i.king@intel.com>
-Date: Tue, 14 Nov 2023 13:29:45 +0000
-Subject: [PATCH] sched/fair: remove upper limit on cpu number
-
-Signed-off-by: Colin Ian King <colin.i.king@intel.com>
----
- kernel/sched/fair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 2048138ce54b..903ead0afacb 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -197,7 +197,7 @@ static inline void update_load_set(struct load_weight *lw, unsigned long w)
-  */
- static unsigned int get_update_sysctl_factor(void)
- {
--	unsigned int cpus = min_t(unsigned int, num_online_cpus(), 8);
-+	unsigned int cpus = num_online_cpus();
- 	unsigned int factor;
- 
- 	switch (sysctl_sched_tunable_scaling) {
--- 
-2.42.1
-
-# 0135-initcall-only-print-non-zero-initcall-debug-to-speed.patch
-
-From 496f1bc8c53f359a2fe07204d3c5ffdba963994e Mon Sep 17 00:00:00 2001
-From: Colin Ian King <colin.king@intel.com>
-Date: Fri, 20 Jan 2023 11:16:42 +0000
-Subject: [PATCH] initcall: only print non-zero initcall debug to speed up boot
-
-Printing initcall timings that successfully return after 0 usecs
-provides not much useful information and takes a small amount of time
-to do so. Disable the initcall timings for these specific cases. On
-an Alderlake i9-12900 this reduces kernel boot time by 0.67% (timed
-up to the invocation of systemd starting) based on 10 boot measurements.
-
-Signed-off-by: Colin Ian King <colin.king@intel.com>
----
- init/main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/init/main.c b/init/main.c
-index aa21add5f7c5..715d57f58895 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -1254,10 +1254,13 @@ static __init_or_module void
- trace_initcall_finish_cb(void *data, initcall_t fn, int ret)
- {
- 	ktime_t rettime, *calltime = data;
-+	long long delta;
- 
- 	rettime = ktime_get();
--	printk(KERN_DEBUG "initcall %pS returned %d after %lld usecs\n",
--		 fn, ret, (unsigned long long)ktime_us_delta(rettime, *calltime));
-+	delta = ktime_us_delta(rettime, *calltime);
-+	if (ret || delta)
-+		printk(KERN_DEBUG "initcall %pS returned %d after %lld usecs\n",
-+			fn, ret, (unsigned long long)ktime_us_delta(rettime, *calltime));
- }
- 
- static ktime_t initcall_calltime;
--- 
-2.39.1
-
-# 0131-add-a-per-cpu-minimum-high-watermark-an-tune-batch-s.patch
+# 0116-migrate-some-systemd-defaults-to-the-kernel-defaults.patch
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Arjan van de Ven <arjan.van.de.ven@intel.com>
-Date: Tue, 23 Nov 2021 17:38:50 +0000
-Subject: [PATCH] add a per cpu minimum high watermark an tune batch size
+From: Auke Kok <auke-jan.h.kok@intel.com>
+Date: Thu, 2 Aug 2018 12:03:22 -0700
+Subject: [PATCH] migrate some systemd defaults to the kernel defaults.
 
-make sure there's at least 1024 per cpu pages... a reasonably small
-amount for todays system
+These settings are needed to prevent networking issues when
+the networking modules come up by default without explicit
+settings, which breaks some cases.
+
+We don't want the modprobe settings to be read at boot time
+if we're not going to do anything else ever.
 ---
- mm/page_alloc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/dummy.c             | 2 +-
+ include/uapi/linux/if_bonding.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index e6f211dcf82e..0ea48434ac7d 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6836,11 +6836,11 @@ static int zone_batchsize(struct zone *zone)
+diff --git a/drivers/net/dummy.c b/drivers/net/dummy.c
+index f82ad7419508..5e8faa70aad6 100644
+--- a/drivers/net/dummy.c
++++ b/drivers/net/dummy.c
+@@ -43,7 +43,7 @@
  
- 	/*
- 	 * The number of pages to batch allocate is either ~0.1%
--	 * of the zone or 1MB, whichever is smaller. The batch
-+	 * of the zone or 4MB, whichever is smaller. The batch
- 	 * size is striking a balance between allocation latency
- 	 * and zone lock contention.
- 	 */
--	batch = min(zone_managed_pages(zone) >> 10, SZ_1M / PAGE_SIZE);
-+	batch = min(zone_managed_pages(zone) >> 10, 4 * SZ_1M / PAGE_SIZE);
- 	batch /= 4;		/* We effectively *= 4 below */
- 	if (batch < 1)
- 		batch = 1;
--- 
-https://clearlinux.org
-
-# 0130-itmt2-ADL-fixes.patch
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Date: Thu, 18 Nov 2021 16:09:47 +0000
-Subject: [PATCH] itmt2 ADL fixes
-
-On systems with overclocking enabled, CPPC Highest Performance can be
-hard coded to 0xff. In this case even if we have cores with different
-highest performance, ITMT can't be enabled as the current implementation
-depends on CPPC Highest Performance.
-
-On such systems we can use MSR_HWP_CAPABILITIES maximum performance field
-when CPPC.Highest Performance is 0xff.
-
-Due to legacy reasons, we can't solely depend on MSR_HWP_CAPABILITIES as
-in some older systems CPPC Highest Performance is the only way to identify
-different performing cores.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/cpufreq/intel_pstate.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index bc7f7e6759bd..ee33ad7f6f28 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -364,6 +364,13 @@ static void intel_pstate_set_itmt_prio(int cpu)
- 	 * update them at any time after it has been called.
- 	 */
- 	sched_set_itmt_core_prio(cppc_perf.highest_perf, cpu);
-+	/*
-+	 * On some systems with overclocking enabled, CPPC.highest_perf is hardcoded to 0xff.
-+	 * In this case we can't use CPPC.highest_perf to enable ITMT.
-+	 * In this case we can look at MSR_HWP_CAPABILITIES bits [8:0] to decide.
-+	 */
-+	if (cppc_perf.highest_perf == 0xff)
-+		cppc_perf.highest_perf = HWP_HIGHEST_PERF(READ_ONCE(all_cpu_data[cpu]->hwp_cap_cached));
+ #define DRV_NAME	"dummy"
  
- 	if (max_highest_perf <= min_highest_perf) {
- 		if (cppc_perf.highest_perf > max_highest_perf)
+-static int numdummies = 1;
++static int numdummies = 0;
+ 
+ /* fake multicast ability */
+ static void set_multicast_list(struct net_device *dev)
+diff --git a/include/uapi/linux/if_bonding.h b/include/uapi/linux/if_bonding.h
+index d174914a837d..bf8e2af101a3 100644
+--- a/include/uapi/linux/if_bonding.h
++++ b/include/uapi/linux/if_bonding.h
+@@ -82,7 +82,7 @@
+ #define BOND_STATE_ACTIVE       0   /* link is active */
+ #define BOND_STATE_BACKUP       1   /* link is backup */
+ 
+-#define BOND_DEFAULT_MAX_BONDS  1   /* Default maximum number of devices to support */
++#define BOND_DEFAULT_MAX_BONDS  0   /* Default maximum number of devices to support */
+ 
+ #define BOND_DEFAULT_TX_QUEUES 16   /* Default number of tx queues per device */
+ 
 -- 
 https://clearlinux.org
 
@@ -601,52 +470,183 @@ index 57027bfed25f..596fd7fb7847 100644
 -- 
 https://clearlinux.org
 
-# 0116-migrate-some-systemd-defaults-to-the-kernel-defaults.patch
+# 0130-itmt2-ADL-fixes.patch
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Auke Kok <auke-jan.h.kok@intel.com>
-Date: Thu, 2 Aug 2018 12:03:22 -0700
-Subject: [PATCH] migrate some systemd defaults to the kernel defaults.
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Date: Thu, 18 Nov 2021 16:09:47 +0000
+Subject: [PATCH] itmt2 ADL fixes
 
-These settings are needed to prevent networking issues when
-the networking modules come up by default without explicit
-settings, which breaks some cases.
+On systems with overclocking enabled, CPPC Highest Performance can be
+hard coded to 0xff. In this case even if we have cores with different
+highest performance, ITMT can't be enabled as the current implementation
+depends on CPPC Highest Performance.
 
-We don't want the modprobe settings to be read at boot time
-if we're not going to do anything else ever.
+On such systems we can use MSR_HWP_CAPABILITIES maximum performance field
+when CPPC.Highest Performance is 0xff.
+
+Due to legacy reasons, we can't solely depend on MSR_HWP_CAPABILITIES as
+in some older systems CPPC Highest Performance is the only way to identify
+different performing cores.
+
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/net/dummy.c             | 2 +-
- include/uapi/linux/if_bonding.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/cpufreq/intel_pstate.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/dummy.c b/drivers/net/dummy.c
-index f82ad7419508..5e8faa70aad6 100644
---- a/drivers/net/dummy.c
-+++ b/drivers/net/dummy.c
-@@ -43,7 +43,7 @@
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index bc7f7e6759bd..ee33ad7f6f28 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -364,6 +364,13 @@ static void intel_pstate_set_itmt_prio(int cpu)
+ 	 * update them at any time after it has been called.
+ 	 */
+ 	sched_set_itmt_core_prio(cppc_perf.highest_perf, cpu);
++	/*
++	 * On some systems with overclocking enabled, CPPC.highest_perf is hardcoded to 0xff.
++	 * In this case we can't use CPPC.highest_perf to enable ITMT.
++	 * In this case we can look at MSR_HWP_CAPABILITIES bits [8:0] to decide.
++	 */
++	if (cppc_perf.highest_perf == 0xff)
++		cppc_perf.highest_perf = HWP_HIGHEST_PERF(READ_ONCE(all_cpu_data[cpu]->hwp_cap_cached));
  
- #define DRV_NAME	"dummy"
- 
--static int numdummies = 1;
-+static int numdummies = 0;
- 
- /* fake multicast ability */
- static void set_multicast_list(struct net_device *dev)
-diff --git a/include/uapi/linux/if_bonding.h b/include/uapi/linux/if_bonding.h
-index d174914a837d..bf8e2af101a3 100644
---- a/include/uapi/linux/if_bonding.h
-+++ b/include/uapi/linux/if_bonding.h
-@@ -82,7 +82,7 @@
- #define BOND_STATE_ACTIVE       0   /* link is active */
- #define BOND_STATE_BACKUP       1   /* link is backup */
- 
--#define BOND_DEFAULT_MAX_BONDS  1   /* Default maximum number of devices to support */
-+#define BOND_DEFAULT_MAX_BONDS  0   /* Default maximum number of devices to support */
- 
- #define BOND_DEFAULT_TX_QUEUES 16   /* Default number of tx queues per device */
- 
+ 	if (max_highest_perf <= min_highest_perf) {
+ 		if (cppc_perf.highest_perf > max_highest_perf)
 -- 
 https://clearlinux.org
+
+# 0131-add-a-per-cpu-minimum-high-watermark-an-tune-batch-s.patch
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Arjan van de Ven <arjan.van.de.ven@intel.com>
+Date: Tue, 23 Nov 2021 17:38:50 +0000
+Subject: [PATCH] add a per cpu minimum high watermark an tune batch size
+
+make sure there's at least 1024 per cpu pages... a reasonably small
+amount for todays system
+---
+ mm/page_alloc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index e6f211dcf82e..0ea48434ac7d 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6836,11 +6836,11 @@ static int zone_batchsize(struct zone *zone)
+ 
+ 	/*
+ 	 * The number of pages to batch allocate is either ~0.1%
+-	 * of the zone or 1MB, whichever is smaller. The batch
++	 * of the zone or 4MB, whichever is smaller. The batch
+ 	 * size is striking a balance between allocation latency
+ 	 * and zone lock contention.
+ 	 */
+-	batch = min(zone_managed_pages(zone) >> 10, SZ_1M / PAGE_SIZE);
++	batch = min(zone_managed_pages(zone) >> 10, 4 * SZ_1M / PAGE_SIZE);
+ 	batch /= 4;		/* We effectively *= 4 below */
+ 	if (batch < 1)
+ 		batch = 1;
+-- 
+https://clearlinux.org
+
+# 0135-initcall-only-print-non-zero-initcall-debug-to-speed.patch
+
+From 496f1bc8c53f359a2fe07204d3c5ffdba963994e Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@intel.com>
+Date: Fri, 20 Jan 2023 11:16:42 +0000
+Subject: [PATCH] initcall: only print non-zero initcall debug to speed up boot
+
+Printing initcall timings that successfully return after 0 usecs
+provides not much useful information and takes a small amount of time
+to do so. Disable the initcall timings for these specific cases. On
+an Alderlake i9-12900 this reduces kernel boot time by 0.67% (timed
+up to the invocation of systemd starting) based on 10 boot measurements.
+
+Signed-off-by: Colin Ian King <colin.king@intel.com>
+---
+ init/main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/init/main.c b/init/main.c
+index aa21add5f7c5..715d57f58895 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1254,10 +1254,13 @@ static __init_or_module void
+ trace_initcall_finish_cb(void *data, initcall_t fn, int ret)
+ {
+ 	ktime_t rettime, *calltime = data;
++	long long delta;
+ 
+ 	rettime = ktime_get();
+-	printk(KERN_DEBUG "initcall %pS returned %d after %lld usecs\n",
+-		 fn, ret, (unsigned long long)ktime_us_delta(rettime, *calltime));
++	delta = ktime_us_delta(rettime, *calltime);
++	if (ret || delta)
++		printk(KERN_DEBUG "initcall %pS returned %d after %lld usecs\n",
++			fn, ret, (unsigned long long)ktime_us_delta(rettime, *calltime));
+ }
+ 
+ static ktime_t initcall_calltime;
+-- 
+2.39.1
+
+# 0166-sched-fair-remove-upper-limit-on-cpu-number.patch
+
+From 362f86369d1930ad177acaa47225d24d26b02c8d Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.i.king@intel.com>
+Date: Tue, 14 Nov 2023 13:29:45 +0000
+Subject: [PATCH] sched/fair: remove upper limit on cpu number
+
+Signed-off-by: Colin Ian King <colin.i.king@intel.com>
+---
+ kernel/sched/fair.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 2048138ce54b..903ead0afacb 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -197,7 +197,7 @@ static inline void update_load_set(struct load_weight *lw, unsigned long w)
+  */
+ static unsigned int get_update_sysctl_factor(void)
+ {
+-	unsigned int cpus = min_t(unsigned int, num_online_cpus(), 8);
++	unsigned int cpus = num_online_cpus();
+ 	unsigned int factor;
+ 
+ 	switch (sysctl_sched_tunable_scaling) {
+-- 
+2.42.1
+
+# 0167-net-sock-increase-default-number-of-_SK_MEM_PACKETS-.patch
+
+From 4ba5a01513a6b3487613e7186cac4f3f2f4c5091 Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.i.king@intel.com>
+Date: Wed, 24 Apr 2024 16:45:47 +0100
+Subject: [PATCH] net: sock: increase default number of _SK_MEM_PACKETS to 1024
+
+scale these by a factor of 4 to improve socket performance
+
+Signed-off-by: Colin Ian King <colin.i.king@intel.com>
+---
+ include/net/sock.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 54ca8dcbfb43..9adc51e8085b 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -2903,7 +2903,7 @@ void sk_get_meminfo(const struct sock *sk, u32 *meminfo);
+  * platforms.  This makes socket queueing behavior and performance
+  * not depend upon such differences.
+  */
+-#define _SK_MEM_PACKETS		256
++#define _SK_MEM_PACKETS		1024
+ #define _SK_MEM_OVERHEAD	SKB_TRUESIZE(256)
+ #define SK_WMEM_MAX		(_SK_MEM_OVERHEAD * _SK_MEM_PACKETS)
+ #define SK_RMEM_MAX		(_SK_MEM_OVERHEAD * _SK_MEM_PACKETS)
+-- 
+2.44.0
 
 # 0173-cpuidle-psd-add-power-sleep-demotion-prevention-for-.patch
 
@@ -1045,3 +1045,4 @@ index 000000000000..5bcca5d53675
 +#endif
 -- 
 2.49.0
+
