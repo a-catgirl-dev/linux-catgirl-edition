@@ -1361,8 +1361,6 @@ prepare() {
             -d SCSI_CONSTANTS \
             -d SCSI_LOGGING \
             -d ZSMALLOC_STAT
-
-        # TODO: does BLK_DEBUG_FS disable changing io scheduler at runtime?
     fi
 
     if [ "$_disable_debugfs" = "yes" ]; then
