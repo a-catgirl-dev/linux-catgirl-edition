@@ -1220,10 +1220,8 @@ prepare() {
     if [ "$_no_vm" = "yes" ]; then
         echo "Disable virtual machine support"
         scripts/config -d VIRTUALIZATION \
-            -d HYPERVISOR_GUEST
-
-        # disable drivers as we wont be in a vm
-        scripts/config -d VIRTIO_MENU \
+            -d HYPERVISOR_GUEST \
+            -d VIRTIO_MENU \
             -d VHOST_MENU \
             -d VIRT_DRIVERS \
             -d VIRTIO_BLK \
@@ -1324,12 +1322,13 @@ prepare() {
             if [ "$_package_headers" = "yes" ]; then
                 _die "_package_headers and _no_btf enabled. compile will fail."
             fi
+
+            # disabling BTF means we can also disable debug info generation
             scripts/config -d AF_KCM \
                 -d BPF_SYSCALL \
                 -d BPF_JIT \
-            # we can disable generating debug information :fire:
-            # reduces compile time
-            scripts/config -d DEBUG_INFO_DWARF5 -e DEBUG_INFO_NONE
+                -d DEBUG_INFO_DWARF5 \
+                -e DEBUG_INFO_NONE
         fi
 
         scripts/config -d KPROBES \
@@ -1450,12 +1449,6 @@ prepare() {
         echo "Full monolithic"
         scripts/config -d MODULES
     fi
-
-    # # Rewrite configuration
-    # echo "Rewrite configuration..."
-    # make "${BUILD_FLAGS[@]}" prepare
-    # yes "" | make "${BUILD_FLAGS[@]}" config >/dev/null
-    # diff -u ../config .config || :
 
     ### Prepared version
     make -s kernelrelease > version
