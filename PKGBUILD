@@ -1166,9 +1166,11 @@ prepare() {
 
     if [ "$_disable_simpledrm" = "yes" ]; then
         echo "Disable framebuffer & simpledrm"
-        scripts/config -d DRM_SIMPLEDRM
-        scripts/config -d FB_VESA
-        scripts/config -d FB_EFI
+        scripts/config -d DRM_SIMPLEDRM \
+            -d FB_VESA \
+            -d FB_EFI \
+            -d DRM_EFIDRM \
+            -d DRM_VESADRM
     fi
 
     echo "Set maximum # of GPUs"
