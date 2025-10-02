@@ -1385,18 +1385,7 @@ prepare() {
 
     if [ "$_no_lsms" = "yes" ]; then
         echo "Disable LSMs"
-        scripts/config -d SECURITY_SELINUX \
-            -d SECURITY_SMACK \
-            -d SECURITY_TOMOYO \
-            -d SECURITY_APPARMOR \
-            -d SECURITY_LOADPIN \
-            -d SECURITY_YAMA \
-            -d SECURITY_SAFESETID \
-            -d SECURITY_LOCKDOWN_LSM \
-            -d SECURITY_LANDLOCK \
-            -d SECURITY_IPE \
-            -d INTEGRITY \
-            -d SECURITYFS \
+        scripts/config -d SECURITY \
             --set-str CONFIG_LSM ""
     fi
 
