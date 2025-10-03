@@ -145,10 +145,11 @@ _minor=.8
 #
 # Available options:
 # - `full`: tickless is where timer ticks stop even when a CPU is active whenever possible. it is aimed at high
-#           performance low latency systems. requires special configuration to fully take advantage of. otherwise,
-#           behaves exactly the same as idle tickless
+#           performance low latency systems. requires special configuration to fully take advantage of. Otherwise,
+#           behaves exactly the same as idle tickless.
 # - `idle`: stops timer ticks when all CPUs are idle.
-# - `periodic`: is suitable for real-time systems, but is not power efficient at all.
+# - `periodic`: system always runs at `_HZ_ticks` tickrate; suitable for realtime low-latency systems where
+#               predictable response time is crucial. Not energy efficient.
 #
 # If unsure, select idle
 : "${_tickrate:=idle}"
