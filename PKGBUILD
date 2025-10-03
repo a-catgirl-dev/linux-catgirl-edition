@@ -1312,7 +1312,7 @@ prepare() {
     fi
 
     if [ "$_disable_kexec" = "yes" ]; then
-        scripts/config -d KEXEC -d KEXEC_FILE
+        scripts/config -d KEXEC -d KEXEC_FILE -d KEXEC_HANDOVER
     fi
 
     if [ "$_disable_debugging" = "yes" ]; then
