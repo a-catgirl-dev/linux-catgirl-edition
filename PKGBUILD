@@ -251,7 +251,7 @@ _minor=
 #
 # LTO is done in the linking phase (as implied by the name) and is a form of "Interprocedural Optimization". It often
 # reduces the size of binaries through tree-shaking (dead code elimination), better inlining decisions,
-# constant folding, argument promption, function merging, hot/cold code splitting, devirtualization[^1] etc etc etc.
+# constant folding, argument promotion, function merging, hot/cold code splitting, devirtualization[^1] etc etc etc.
 # Read more about this form of optimization at wikipedia: https://en.wikipedia.org/wiki/Interprocedural_optimization
 #
 # LTO can be pretty expensive to run. I have seen the linker use 13 GB of ram for Fat LTO.
@@ -293,17 +293,23 @@ _minor=
 
 # Full monolithic kernel?
 #
-# This will disable module support in Linux, forcing all modules to be loaded at startup rather than dynamically.
-# this **may** improve boot performance, may reduce memory usage by removing module infrastructure (assuming the
-# costs of this offsets the cost of loading all modules compiled into the kernel)
+# Remove the entire dynamic module loader infrastructure in Linux, statically linking all the modules into the kernel
+# binary. This means that you cannot unload modules and you can't dynamically insert modules.
+#
+# Might improve boot performance and lower memory usage, but there are a few variables:
+#  1. How many modules are compiled?
+#  2. Do the total modules compiled & loaded at once outweigh the cost of the module loader?
+#     Usually this just means "are all the modules compiled into the kernel loaded anyway?"
+#  3. Are all the modules already loaded on boot? If not, this might slow down the boot.
+#
+# This is because kernel code/memory cannot be swapped out, meaning if you compile a ton of modules that you don't
+# always need (that are normally dynamically loaded) into the kernel itself, you will still pay the price for both the
+# module code and the module initialization.
 #
 # The utility use for this option is to create a standalone kernel binary such that you do not need to copy
-# `/lib/modules/kernel-name` (i.e. dualbooting different distros with the same kernel)
-# might be useful for server or embedded systems
+# `/lib/modules/kernel-name` in order to make the kernel work. It is simply standalone.
 #
-# This will vastly reduce the flexibility of your kernel.
-#
-# May be more secure as users simply cannot `insmod` modules into the kernel.
+# Might be useful for server and embedded systems
 #
 # NOTE: you will need to manually put in firmwares into the firmware loader at build time. Without it, you will boot
 #       into a broken or otherwise maimed system.
@@ -311,8 +317,8 @@ _minor=
 # NOTE: this isn't a 100% guarntee that CONFIG_MODULES will be disabled; it may be switched back on by the kernel
 #       build system if something requires `CONFIG_MODULES=y`
 #
-# WARNING: do NOT enable if you are compiling a full kernel (i.e. _localmodcfg) because kernel data/memory cannot
-#          be swapped out.
+# WARNING: do NOT enable if you are compiling a full kernel (i.e. `_localmodcfg = no`) because ALL modules will be
+#          loaded.
 #
 # If unsure, select no
 : "${_full_monolithic:=no}"
