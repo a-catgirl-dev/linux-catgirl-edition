@@ -177,6 +177,8 @@ _minor=
 
 # Transparent Huge Pages (THP)
 #
+# DEPRECATED: I am removing this configuration option in 6.18. Use kernel cmdline `transparent_hugepage=option` instead
+#
 # manages memory allocation using larger pages (usually 2 MB) instead of 4 KB pages for performance.
 #
 # `always`:   always attempts hugepages for allocations. this may cause applications to use more memory than needed, if
