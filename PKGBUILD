@@ -763,12 +763,24 @@ _minor=.3
 #          you just don't give a crap.
 #
 
-# Disable Linux Security Modules
+# Disable Linux Security Modules (LSM)
 #
-# CAUTION: LSMs are enabled in most of the 'big' distros like Ubuntu. Disabling this might lower the security on those
-#          systems.
+# WARNING: More popular and "just-works" distros like Ubuntu have some LSMs preconfigured. Disabling this option
+#          probably _will_ reduce security or otherwise stop logging security actions (some distros use permissive
+#          mode by default instead of enforcing)
 #
-# This may break certain userspace apps that make use of this, for example, pacman seems to rely on landlock[^1]
+# The LSM infrastructure provides a means for security checks to be hooked in by kernel extensions that may be set at
+# boot/compile time. Usually these checks are Mandatory Access Control (MAC) extensions or other security models that
+# extend/are more secure than traditional POSIX permissions.
+#
+# On do-it-yourself distros like arch, most LSMs (like SELinux, AppArmor, etc) are not configured and enabled by
+# default.
+#
+# LSMs host more than MAC extensions; things like kernel_lockdown(7), loadpin, and other components that interact with
+# the LSM system will also be excluded from the compile.
+#
+# This may break certain userspace apps that always expect certain LSMs to be active, for example, pacman emits a
+# warning when landlock[^1] is not available
 #
 # If unsure, select no
 #
