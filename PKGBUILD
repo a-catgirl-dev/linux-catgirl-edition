@@ -1407,6 +1407,7 @@ prepare() {
     if [ "$_no_lsms" = "yes" ]; then
         echo "Disable LSMs"
         scripts/config -d SECURITY \
+            -d SECURITYFS \
             --set-str CONFIG_LSM ""
     fi
 
