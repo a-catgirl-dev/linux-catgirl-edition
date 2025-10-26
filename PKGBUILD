@@ -819,8 +819,20 @@ _minor=.5
 #  1. A malicious program
 #  2. A buggy kernel
 #
-# If unsure, select `no
+# If unsure, select `no`
 : "${_no_stack_zeroing:=no}"
+
+# Erase kernel stack on sysret
+#
+# This reduces the lifetime of sensitive stack contents and protects the kernel against uninitialized stack variable
+# exposures.
+#
+# Documentation states a single CPU kernel compile sees a 1% slowdown.
+#
+# Same security advisory (the two points) in `_no_stack_zeroing`
+#
+# If unsure, select `no`
+: "${_no_erase_kstack:=no}"
 
 # Disable checking of integrity linked list manipulation
 #
@@ -1418,8 +1430,13 @@ prepare() {
     fi
 
     if [ "$_no_stack_zeroing" = "yes" ]; then
-        echo "Disable stack zeroing"
+        echo "Disable stack zeroing on sysenter"
         scripts/config -d CONFIG_INIT_STACK_ALL_ZERO -e CONFIG_INIT_STACK_NONE
+    fi
+
+    if [ "$_no_erase_kstack" = "yes" ]; then
+        echo "Disable stack erase on sysret"
+        scripts/config -d KSTACK_ERASE
     fi
 
     if [ "$_no_checking_linkedlist_integrity" = "yes" ]; then
