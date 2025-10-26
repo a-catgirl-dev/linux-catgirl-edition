@@ -1380,7 +1380,8 @@ prepare() {
             -d DEBUG_RODATA_TEST \
             -d SCSI_CONSTANTS \
             -d SCSI_LOGGING \
-            -d ZSMALLOC_STAT
+            -d ZSMALLOC_STAT \
+            -d OVMF_DEBUG_LOG
     fi
 
     if [ "$_disable_debugfs" = "yes" ]; then
