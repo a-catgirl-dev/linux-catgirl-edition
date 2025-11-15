@@ -18,7 +18,7 @@
 # if you are updating the kernel, consider running `git stash && git fetch && git pull && git stash pop` instead
 # of updating these values
 _major=6.17
-_minor=.7
+_minor=.8
 
 # select custom patchset(s)
 #
@@ -928,7 +928,7 @@ _stable=${_major}
 _srcname=linux-${pkgver}
 # _srcname=linux-${_major}
 pkgdesc='linux catgirl edition! meow~'
-pkgrel=2
+pkgrel=1
 _kernver="$pkgver-$pkgrel"
 _kernuname="${pkgver}-${_pkgsuffix}"
 arch=('x86_64')
