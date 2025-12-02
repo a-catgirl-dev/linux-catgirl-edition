@@ -175,30 +175,6 @@ _minor=.9
 # [^1]: except critical sections
 : "${_preempt:=lazy}"
 
-# Transparent Huge Pages (THP)
-#
-# DEPRECATED: I am removing this configuration option in 6.18. Use kernel cmdline `transparent_hugepage=option` instead
-#
-# manages memory allocation using larger pages (usually 2 MB) instead of 4 KB pages for performance.
-#
-# `always`:   always attempts hugepages for allocations. this may cause applications to use more memory than needed, if
-#             the application is poorly designed and only uses a small portion of the `mmap`ed memory.
-#             (applications may opt-out through special syscalls, but most apps probably don't)
-# `madvise`:  only attempts hugepage allocation when applications specifically requests it. this may be more
-#             memory efficient as hugepages are only used when needed
-# `never`:    disables THP by default, but can still be enabled at runtime
-# `disabled`: does not compile THP at all. lowest memory usage. only recommended on embedded
-#
-# can't choose? you can set this at runtime (except for the `disabled` option):
-# echo always > /sys/kernel/mm/transparent_hugepage/enabled
-# or just set here and https://tryitands.ee
-#
-# you may perfer `madvise` if your system is low on memory (<1 GB)
-# if you have very low memory (i.e. embedded or <200 mb), you may want `disabled`
-#
-# If unsure, select `always`
-: "${_hugepage:=always}"
-
 # Optimize kernel for a specific processor
 #
 # If you distribute your kernel, set this to either one of `x86-64`, `x86-64-v2` or `x86-64-v3`)
@@ -787,29 +763,6 @@ _minor=.9
 # [^1]: to disable the warning, turn on the DisableSandbox option in pacman.conf
 : "${_no_lsms:=no}"
 
-# Disable heap zeroing on allocation
-#
-# DEPRECATED: I am removing this configuration option in 6.18. Use kernel cmdline `init_on_alloc=0` instead
-#
-# according to the documentation, disabling heap zeroing typically has <1% impact on workloads, but some synthetic (benchmark/stress)
-# workloads have measured 7%.
-#
-# this may open up your system to information exposure exploits from previously
-# used memory that has since been freed by other processes/threads. this means
-# that freed memory may be freely accessable to other processes that happen to
-# allocate those same regions of memory. these pieces of memory may include
-# cryptographic keys or other sensitive information you want to be zeroed out.
-#
-# this often requires a purposely malicious or buggy program[^2] to impact your security.
-#
-# If unsure:
-#     if you do not fully trust the apps running on your system[^1], say no
-#     if building for an embedded system or system with code you trust, its safe[r] to say yes
-#
-# [^1]: for example, any applications with proprietary code
-# [^2]: buggy as in exploitable from things like memory safety
-: "${_no_heap_zeroing:=no}"
-
 # Disable kernel stack zeroing
 #
 # The kernel automatically initializes the kernel stacks with 0xAA to prevent stack exposure bugs. This option
@@ -860,15 +813,6 @@ _minor=.9
 #
 # If unsure, select no
 : "${_no_stack_protector:=no}"
-
-# Disable kstack offset
-#
-# DEPRECATED: I am removing this option in 6.18. Use `randomize_kstack_offset=on/off` instead. It has no runtime
-#             overhead through the use of jump labels
-#
-# might improve performance idk lmao.
-# makes memory corruption attacks that depend on stack address determinism or cross-syscall address exposures harder, if not flat out impossible
-: "${_no_randomize_kstack_offset:=no}"
 
 # Disable Indirect Branch Tracking (IBT) support
 #
@@ -1121,15 +1065,6 @@ prepare() {
             -d CONFIG_DEFAULT_FQ_CODEL \
             -e CONFIG_DEFAULT_FQ
     fi
-
-    # Select THP
-    case "$_hugepage" in
-        always) scripts/config -d TRANSPARENT_HUGEPAGE_MADVISE -e TRANSPARENT_HUGEPAGE_ALWAYS;;
-        madvise) scripts/config -d TRANSPARENT_HUGEPAGE_ALWAYS -e TRANSPARENT_HUGEPAGE_MADVISE;;
-        never) scripts/config -d TRANSPARENT_HUGEPAGE_ALWAYS -d TRANSPARENT_HUGEPAGE_MADVISE -e TRANSPARENT_HUGEPAGE_NEVER;;
-        disabled) scripts/config -d TRANSPARENT_HUGEPAGE;;
-        *) _die "The value '$_hugepage' is invalid. Choose the correct one again.";;
-    esac
 
     echo "Selecting '$_hugepage' TRANSPARENT_HUGEPAGE config..."
 
