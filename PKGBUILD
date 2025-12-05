@@ -1098,10 +1098,7 @@ prepare() {
         __localmodcfg_path="../../modlist-diet.db"
     fi
 
-    echo "$__localmodcfg_path"
-
     if [[ "${__localmodcfg_path:-}" ]]; then
-        echo DIETING
         if [ -e "$__localmodcfg_path" ]; then
             echo "Running Steven Rostedt's make localmodconfig now"
             if [ "$_unattended_make_prepare" = "yes" ]; then
