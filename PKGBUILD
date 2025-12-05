@@ -87,10 +87,25 @@ _minor=
 # This will significantly reduce compile time & reduce the size of your kernel.
 # Usage guide: https://wiki.archlinux.org/title/Modprobed-db
 #
-# Disable this option if you want to build a kernel with the default module options
+# Incompatible with `_diet_kernel`
 #
 # If unsure, select `yes`
 : "${_localmodcfg:=yes}"
+
+# Assume a baseline of modules
+#
+# Uses linux-tkg's "diet kernel" option, which includes a baseline of modules that are assumed to be able to work for
+# most systems, making the kernel more portable across different hardware configurations when compared to `_diet_kernel`
+# Reduces build times when compared to a full kernel, but still will take a longer time compared to `_localmodcfg`
+#
+# Note that if you have unusual hardware, your kernel will not have support for those.
+#
+# Courtesy of https://github.com/Frogging-Family/linux-tkg
+#
+# Incompatible with `_localmodcfg`
+#
+# If unsure, select `yes`
+: "${_diet_kernel:=no}"
 
 # modprobed.db path
 #
@@ -1073,19 +1088,31 @@ prepare() {
 
     # Optionally load needed modules for the make localmodconfig
     # See https://aur.archlinux.org/packages/modprobed-db
+    if [[ "$_localmodcfg" = "yes" && "$_diet_kernel" = "yes" ]]; then
+        _die "_localmodcfg is incompatible with _diet_kernel"
+    fi
+
     if [ "$_localmodcfg" = "yes" ]; then
-        if [ -e "$_localmodcfg_path" ]; then
+        __localmodcfg_path="$_localmodcfg_path"
+    elif [ "$_diet_kernel" = "yes" ]; then
+        __localmodcfg_path="../../modlist-diet.db"
+    fi
+
+    echo "$__localmodcfg_path"
+
+    if [[ "${__localmodcfg_path:-}" ]]; then
+        echo DIETING
+        if [ -e "$__localmodcfg_path" ]; then
             echo "Running Steven Rostedt's make localmodconfig now"
             if [ "$_unattended_make_prepare" = "yes" ]; then
-                yes "" | make "${BUILD_FLAGS[@]}" LSMOD="${_localmodcfg_path}" localmodconfig
+                yes "" | make "${BUILD_FLAGS[@]}" LSMOD="${__localmodcfg_path}" localmodconfig
             else
-                make "${BUILD_FLAGS[@]}" LSMOD="${_localmodcfg_path}" localmodconfig
+                make "${BUILD_FLAGS[@]}" LSMOD="${__localmodcfg_path}" localmodconfig
             fi
         else
             _die "No modprobed.db data found"
         fi
     fi
-    # fish
 
     # Rewrite configuration
     echo "Rewrite configuration..."
