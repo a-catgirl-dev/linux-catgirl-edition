@@ -92,6 +92,13 @@ _minor=
 # If unsure, select `yes`
 : "${_localmodcfg:=yes}"
 
+# modprobed.db path
+#
+# If `_localmodcfg` is enabled, this value must be set or compile will fail early on.
+#
+# If unsure, leave as default.
+: "${_localmodcfg_path:="$HOME/.config/modprobed.db"}"
+
 # Assume a baseline of modules
 #
 # Uses linux-tkg's "diet kernel" option, which includes a baseline of modules that are assumed to be able to work for
