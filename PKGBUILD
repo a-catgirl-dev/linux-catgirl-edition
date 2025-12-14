@@ -114,13 +114,6 @@ _minor=.1
 # If unsure, select `yes`
 : "${_diet_kernel:=no}"
 
-# modprobed.db path
-#
-# If `_localmodcfg` is enabled, this value must be set or compile will fail early on.
-#
-# If unsure, leave as default.
-: "${_localmodcfg_path:="$HOME/.config/modprobed.db"}"
-
 # Use -O3 to compile kernel?
 #
 # -O3 has been previously critised by torvalds[^1] by historically producing worse code.
