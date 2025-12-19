@@ -260,12 +260,12 @@ _minor=.1
 # [^2]: Except vDSO, but to my knowledge, vDSO does not benefit from LTO because it is compiled separately.
 : "${_use_llvm_lto:=thin}"
 
-# https://wiki.archlinux.org/title/NVIDIA
 # pick the right module to build.
 
-# build nvidia
-: "${_build_nvidia:=no}"
-# or build nvidia_open
+# You can optionally build the nvidia-open module into the kernel as a module
+# Use only if you have a Turing+ GPU. If not, just install the `nvidia` package.
+#
+# For more information, visit https://wiki.archlinux.org/title/NVIDIA
 : "${_build_nvidia_open:=no}"
 
 # Header packaging
@@ -910,7 +910,7 @@ makedepends=(
 _patchsource_cachyos="https://raw.githubusercontent.com/cachyos/kernel-patches/master/${_major}"
 _patchsource_xanmod="https://gitlab.com/xanmod/linux-patches/-/raw/master/linux-6.16.y-xanmod"
 _patchsource_clear="https://raw.githubusercontent.com/a-catgirl-dev/linux-catgirl-edition/refs/heads/dev/patches" # change this to clears' own URL
-_nv_ver=580.95.05
+_nv_ver=590.48.01
 _nv_pkg="NVIDIA-Linux-x86_64-${_nv_ver}"
 _nv_open_pkg="NVIDIA-kernel-module-source-${_nv_ver}"
 source=(
@@ -944,12 +944,6 @@ if _is_lto_kernel; then
         LLVM_IAS=1
         KCFLAGS=-march=${_processor_opt}
     )
-fi
-
-# NVIDIA pre-build module support
-if [ "$_build_nvidia" = "yes" ]; then
-    source+=("https://us.download.nvidia.com/XFree86/Linux-x86_64/${_nv_ver}/${_nv_pkg}.run"
-             "${_patchsource_cachyos}/misc/nvidia/0001-Enable-atomic-kernel-modesetting-by-default.patch")
 fi
 
 if [ "$_build_nvidia_open" = "yes" ]; then
@@ -1451,21 +1445,9 @@ prepare() {
     local basedir="$(dirname "$(readlink "${srcdir}/config")")"
     cat .config > "${basedir}/config-${pkgver}-${pkgrel}${pkgbase#linux}"
 
-    if [ "$_build_nvidia" = "yes" ]; then
-        cd "${srcdir}"
-        sh "${_nv_pkg}.run" --extract-only
-
-        # Use fbdev and modeset as default
-        patch -Np1 -i "${srcdir}/0001-Make-modeset-and-fbdev-default-enabled.patch" -d "${srcdir}/${_nv_pkg}/kernel"
-    fi
-
     if [ "$_build_nvidia_open" = "yes" ]; then
-        # Use fbdev and modeset as default
-        patch -Np1 -i "${srcdir}/0001-Make-modeset-and-fbdev-default-enabled.patch" \
-            -d "${srcdir}/${_nv_open_pkg}/kernel-open"
-        # Fix for https://bugs.archlinux.org/task/74886
-        patch -Np1 --no-backup-if-mismatch -i "${srcdir}/0003-Add-IBT-Support.patch" \
-            -d "${srcdir}/${_nv_open_pkg}"
+        patch -Np1 -i "${srcdir}/0001-Enable-atomic-kernel-modesetting-by-default.patch" -d "${srcdir}/${_nv_open_pkg}/kernel-open"
+        patch -Np1 -i "${srcdir}/0002-Add-IBT-support.patch" -d "${srcdir}/${_nv_open_pkg}/"
     fi
 }
 
@@ -1482,12 +1464,6 @@ build() {
        SYSSRC="${srcdir}/${_srcname}"
        SYSOUT="${srcdir}/${_srcname}"
     )
-    if [ "$_build_nvidia" = "yes" ]; then
-        MODULE_FLAGS+=(NV_EXCLUDE_BUILD_MODULES='__EXCLUDE_MODULES')
-        cd "${srcdir}/${_nv_pkg}/kernel"
-        make "${BUILD_FLAGS[@]}" "${MODULE_FLAGS[@]}" -j"$(nproc)" modules
-
-    fi
 
     if [ "$_build_nvidia_open" = "yes" ]; then
         cd "${srcdir}/${_nv_open_pkg}"
@@ -1655,7 +1631,6 @@ _package-nvidia-open(){
 
 pkgname=("$pkgbase")
 [ "$_package_headers" = "yes" ] && pkgname+=("$pkgbase-headers")
-[ "$_build_nvidia" = "yes" ] && pkgname+=("$pkgbase-nvidia")
 [ "$_build_nvidia_open" = "yes" ] && pkgname+=("$pkgbase-nvidia-open")
 for _p in "${pkgname[@]}"; do
     eval "package_$_p() {
