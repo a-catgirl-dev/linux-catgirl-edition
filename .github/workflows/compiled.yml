@@ -45,7 +45,7 @@ jobs:
           zip -r linux-catgirl-edition.zip . -x ".git/*" ".github/*" "README.md" "linux-[0-9]*.tar.xz"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: linux-catgirl-edition-compiled
           path: linux-catgirl-edition.zip
