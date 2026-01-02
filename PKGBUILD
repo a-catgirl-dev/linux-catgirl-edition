@@ -18,7 +18,7 @@
 # if you are updating the kernel, consider running `git stash && git fetch && git pull && git stash pop` instead
 # of updating these values
 _major=6.18
-_minor=.2
+_minor=.3
 
 # select custom patchset(s)
 #
@@ -1639,6 +1639,7 @@ for _p in "${pkgname[@]}"; do
     }"
 done
 
+# TODO: make this right
 b2sums=('11835719804b406fe281ea1c276a84dc0cbaa808552ddcca9233d3eaeb1c001d0455c7205379b02de8e8db758c1bae6fe7ceb6697e63e3cf9ae7187dc7a9715e'
         '49f51c9ae64eb5210542a7b5e2cfa58c051c768bca1250969bc51f7efa6b54550e0c221357eb31c01a5e5184e79d87fa6772a8986c77effb431164c9b1266a0e'
         '390c7b80608e9017f752b18660cc18ad1ec69f0aab41a2edfcfc26621dcccf5c7051c9d233d9bdf1df63d5f1589549ee0ba3a30e43148509d27dafa9102c19ab'
