@@ -909,7 +909,6 @@ makedepends=(
 
 _patchsource_cachyos="https://raw.githubusercontent.com/cachyos/kernel-patches/master/${_major}"
 _patchsource_xanmod="https://gitlab.com/xanmod/linux-patches/-/raw/master/linux-6.18.y-xanmod"
-_patchsource_clear="https://raw.githubusercontent.com/a-catgirl-dev/linux-catgirl-edition/refs/heads/dev/patches" # change this to clears' own URL
 _nv_ver=590.48.01
 _nv_pkg="NVIDIA-Linux-x86_64-${_nv_ver}"
 _nv_open_pkg="NVIDIA-kernel-module-source-${_nv_ver}"
@@ -918,11 +917,6 @@ source=(
     "config"
     "${_patchsource_cachyos}/all/0001-cachyos-base-all.patch"
 )
-
-# apply clear linux patchset
-if [ "${_import_clear_patchset:=yes}" = "yes" ]; then
-    source+=("${_patchsource_clear}/clear-linux-patchset.patch")
-fi
 
 # apply xanmod patchset
 if [ "${_import_xanmod_patchset:=yes}" = "yes" ]; then
@@ -985,6 +979,17 @@ prepare() {
         echo "Applying patch $src..."
         patch -Np1 < "../$src"
     done
+
+    # HACK: pkgbuild pisses me off. simply doing `source+=("patches/clear-linux-patchset.patch")`... makes pkgbuild
+    # NOT search in patches/. it runs off and says this gem:
+    # ==> ERROR: clear-linux-patchset.patch was not found in the build directory and is not a URL.
+    # look in patches/ pLEASE
+    if [[ $_import_clear_patchset == yes ]]; then
+        echo "Applying patch clear-linux-patchset.patch"
+        # srcdir is src/, back up a bit into root (where pkgbuild is) again
+        # engineering 101
+        patch -Np1 < "$srcdir/../patches/clear-linux-patchset.patch"
+    fi
 
     echo "Setting config..."
     cp ../config .config

@@ -1,5 +1,3 @@
-# 0104-pci-pme-wakeups.patch
-
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Arjan van de Ven <arjan@linux.intel.com>
 Date: Mon, 14 Mar 2016 11:10:58 -0600
@@ -27,279 +25,6 @@ index d25122fbe98a..dbfb6aaa4a07 100644
 -- 
 https://clearlinux.org
 
-# 0106-intel_idle-tweak-cpuidle-cstates.patch
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Arjan van de Ven <arjan@linux.intel.com>
-Date: Sat, 19 Mar 2016 21:32:19 -0400
-Subject: [PATCH] intel_idle: tweak cpuidle cstates
-
-Increase target_residency in cpuidle cstate
-
-Tune intel_idle to be a bit less agressive;
-Clear linux is cleaner in hygiene (wakupes) than the average linux,
-so we can afford changing these in a way that increases
-performance while keeping power efficiency
----
- drivers/idle/intel_idle.c | 44 +++++++++++++++++++--------------------
- 1 file changed, 22 insertions(+), 22 deletions(-)
-
---- linux-6.12.1/drivers/idle/intel_idle.c.org	2025-01-31 16:14:37.064154990 +0000
-+++ linux-6.12.1/drivers/idle/intel_idle.c	2025-01-31 16:15:34.145798652 +0000
-@@ -574,7 +574,7 @@
- 		.desc = "MWAIT 0x01",
- 		.flags = MWAIT2flg(0x01) | CPUIDLE_FLAG_ALWAYS_ENABLE,
- 		.exit_latency = 10,
--		.target_residency = 20,
-+		.target_residency = 120,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -582,7 +582,7 @@
- 		.desc = "MWAIT 0x10",
- 		.flags = MWAIT2flg(0x10) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 33,
--		.target_residency = 100,
-+		.target_residency = 900,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -590,7 +590,7 @@
- 		.desc = "MWAIT 0x20",
- 		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 133,
--		.target_residency = 400,
-+		.target_residency = 1000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -598,7 +598,7 @@
- 		.desc = "MWAIT 0x32",
- 		.flags = MWAIT2flg(0x32) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 166,
--		.target_residency = 500,
-+		.target_residency = 1500,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -606,7 +606,7 @@
- 		.desc = "MWAIT 0x40",
- 		.flags = MWAIT2flg(0x40) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 300,
--		.target_residency = 900,
-+		.target_residency = 2000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -614,7 +614,7 @@
- 		.desc = "MWAIT 0x50",
- 		.flags = MWAIT2flg(0x50) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 600,
--		.target_residency = 1800,
-+		.target_residency = 5000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -622,7 +622,7 @@
- 		.desc = "MWAIT 0x60",
- 		.flags = MWAIT2flg(0x60) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 2600,
--		.target_residency = 7700,
-+		.target_residency = 9000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -642,7 +642,7 @@
- 		.desc = "MWAIT 0x01",
- 		.flags = MWAIT2flg(0x01) | CPUIDLE_FLAG_ALWAYS_ENABLE,
- 		.exit_latency = 10,
--		.target_residency = 20,
-+		.target_residency = 120,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -650,7 +650,7 @@
- 		.desc = "MWAIT 0x10",
- 		.flags = MWAIT2flg(0x10) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 40,
--		.target_residency = 100,
-+		.target_residency = 1000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -658,7 +658,7 @@
- 		.desc = "MWAIT 0x20",
- 		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 133,
--		.target_residency = 400,
-+		.target_residency = 1000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -666,7 +666,7 @@
- 		.desc = "MWAIT 0x32",
- 		.flags = MWAIT2flg(0x32) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 166,
--		.target_residency = 500,
-+		.target_residency = 2000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -674,7 +674,7 @@
- 		.desc = "MWAIT 0x40",
- 		.flags = MWAIT2flg(0x40) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 300,
--		.target_residency = 900,
-+		.target_residency = 4000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -682,7 +682,7 @@
- 		.desc = "MWAIT 0x50",
- 		.flags = MWAIT2flg(0x50) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 600,
--		.target_residency = 1800,
-+		.target_residency = 7000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -690,7 +690,7 @@
- 		.desc = "MWAIT 0x60",
- 		.flags = MWAIT2flg(0x60) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 2600,
--		.target_residency = 7700,
-+		.target_residency = 9000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -711,7 +711,7 @@
- 		.desc = "MWAIT 0x01",
- 		.flags = MWAIT2flg(0x01) | CPUIDLE_FLAG_ALWAYS_ENABLE,
- 		.exit_latency = 10,
--		.target_residency = 20,
-+		.target_residency = 120,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -719,7 +719,7 @@
- 		.desc = "MWAIT 0x10",
- 		.flags = MWAIT2flg(0x10) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 70,
--		.target_residency = 100,
-+		.target_residency = 1000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -727,7 +727,7 @@
- 		.desc = "MWAIT 0x20",
- 		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 85,
--		.target_residency = 200,
-+		.target_residency = 600,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -735,7 +735,7 @@
- 		.desc = "MWAIT 0x33",
- 		.flags = MWAIT2flg(0x33) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 124,
--		.target_residency = 800,
-+		.target_residency = 3000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -743,7 +743,7 @@
- 		.desc = "MWAIT 0x40",
- 		.flags = MWAIT2flg(0x40) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 200,
--		.target_residency = 800,
-+		.target_residency = 3200,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -751,7 +751,7 @@
- 		.desc = "MWAIT 0x50",
- 		.flags = MWAIT2flg(0x50) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 480,
--		.target_residency = 5000,
-+		.target_residency = 9000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -759,7 +759,7 @@
- 		.desc = "MWAIT 0x60",
- 		.flags = MWAIT2flg(0x60) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 890,
--		.target_residency = 5000,
-+		.target_residency = 9000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -780,7 +780,7 @@
- 		.desc = "MWAIT 0x01",
- 		.flags = MWAIT2flg(0x01) | CPUIDLE_FLAG_ALWAYS_ENABLE,
- 		.exit_latency = 10,
--		.target_residency = 20,
-+		.target_residency = 300,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -809,7 +809,7 @@
- 		.desc = "MWAIT 0x01",
- 		.flags = MWAIT2flg(0x01) | CPUIDLE_FLAG_ALWAYS_ENABLE,
- 		.exit_latency = 4,
--		.target_residency = 4,
-+		.target_residency = 40,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -817,7 +817,7 @@
- 		.desc = "MWAIT 0x20",
- 		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED,
- 		.exit_latency = 170,
--		.target_residency = 600,
-+		.target_residency = 900,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -967,7 +967,7 @@
- 		.desc = "MWAIT 0x01",
- 		.flags = MWAIT2flg(0x01) | CPUIDLE_FLAG_ALWAYS_ENABLE,
- 		.exit_latency = 2,
--		.target_residency = 4,
-+		.target_residency = 40,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -1021,7 +1021,7 @@
- 		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED |
- 					   CPUIDLE_FLAG_INIT_XSTATE,
- 		.exit_latency = 290,
--		.target_residency = 800,
-+		.target_residency = 1200,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -1052,7 +1052,7 @@
- 					   CPUIDLE_FLAG_INIT_XSTATE |
- 					   CPUIDLE_FLAG_PARTIAL_HINT_MATCH,
- 		.exit_latency = 170,
--		.target_residency = 650,
-+		.target_residency = 1250,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-@@ -1062,7 +1062,7 @@
- 					   CPUIDLE_FLAG_INIT_XSTATE |
- 					   CPUIDLE_FLAG_PARTIAL_HINT_MATCH,
- 		.exit_latency = 210,
--		.target_residency = 1000,
-+		.target_residency = 2000,
- 		.enter = &intel_idle,
- 		.enter_s2idle = intel_idle_s2idle, },
- 	{
-
-# 0108-smpboot-reuse-timer-calibration.patch
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Arjan van de Ven <arjan@linux.intel.com>
@@ -329,7 +54,6 @@ index a698196377be..5f3ee7c31c8a 100644
 -- 
 https://clearlinux.org
 
-# 0116-migrate-some-systemd-defaults-to-the-kernel-defaults.patch
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Auke Kok <auke-jan.h.kok@intel.com>
@@ -376,7 +100,6 @@ index d174914a837d..bf8e2af101a3 100644
 -- 
 https://clearlinux.org
 
-# 0128-itmt_epb-use-epb-to-scale-itmt.patch
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Arjan van de Ven <arjan.van.de.ven@intel.com>
@@ -470,7 +193,6 @@ index 57027bfed25f..596fd7fb7847 100644
 -- 
 https://clearlinux.org
 
-# 0130-itmt2-ADL-fixes.patch
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
@@ -515,7 +237,6 @@ index bc7f7e6759bd..ee33ad7f6f28 100644
 -- 
 https://clearlinux.org
 
-# 0131-add-a-per-cpu-minimum-high-watermark-an-tune-batch-s.patch
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Arjan van de Ven <arjan.van.de.ven@intel.com>
@@ -549,7 +270,6 @@ index e6f211dcf82e..0ea48434ac7d 100644
 -- 
 https://clearlinux.org
 
-# 0135-initcall-only-print-non-zero-initcall-debug-to-speed.patch
 
 From 496f1bc8c53f359a2fe07204d3c5ffdba963994e Mon Sep 17 00:00:00 2001
 From: Colin Ian King <colin.king@intel.com>
@@ -590,7 +310,6 @@ index aa21add5f7c5..715d57f58895 100644
 -- 
 2.39.1
 
-# 0166-sched-fair-remove-upper-limit-on-cpu-number.patch
 
 From 362f86369d1930ad177acaa47225d24d26b02c8d Mon Sep 17 00:00:00 2001
 From: Colin Ian King <colin.i.king@intel.com>
@@ -618,7 +337,6 @@ index 2048138ce54b..903ead0afacb 100644
 -- 
 2.42.1
 
-# 0167-net-sock-increase-default-number-of-_SK_MEM_PACKETS-.patch
 
 From 4ba5a01513a6b3487613e7186cac4f3f2f4c5091 Mon Sep 17 00:00:00 2001
 From: Colin Ian King <colin.i.king@intel.com>
@@ -648,175 +366,30 @@ index 54ca8dcbfb43..9adc51e8085b 100644
 -- 
 2.44.0
 
-# 0173-cpuidle-psd-add-power-sleep-demotion-prevention-for-.patch
 
-From f024054b3a97507df9b838e4840100c01d5f1d7d Mon Sep 17 00:00:00 2001
-From: Colin Ian King <colin.i.king@intel.com>
-Date: Tue, 3 Jun 2025 15:42:52 +0100
-Subject: [PATCH] cpuidle: psd: power sleep demotion prevention for PCIe NVME I/O devices
-
-Modern processors can drop into deep sleep states relatively quickly
-to save power. However, coming out of deep sleep states takes a small
-amount of time and this is detrimental to performance for I/O devices
-such as fast PCIe NVME drives when servicing a completed I/O
-transactions.
-
-Testing with fio with read/write RAID0 PCIe NVME devices on various
-modern SMP based systems (such as 96 thead Granite Rapids Xeon 6741P)
-has shown that on 85-90% of read/write transactions issued on a CPU
-are completed by the same CPU, so it makes some sense to prevent the
-CPU from dropping into a deep sleep state to help reduce I/O handling
-latency.
-
-This commit introduces a simple, very lightweight and fast power sleep
-demotion mechanism that provides the PCIe NVME driver a way to inform
-the menu governor to prevent a CPU from going into a deep sleep when an
-I/O operation is requested. While it is true that some I/Os may not
-be serviced on the same CPU that issued the I/O request, the mechanism
-does work well in the vast majority of I/O operations and there is very
-small overhead with the sleep demotion prevention.
-
-Test results on a 96 thread Xeon 6741P with a 6 way RAID0 PCIe NVME md
-array. Tested with the NHM_C1_AUTO_DEMOTE bit set in the
-MSR_PKG_CST_CONFIG_CONTROL (set in the BIOS).
-
-Benchmarked with 4 I/O test cases from the Phoronix Test Suite v10.8.5,
-each result is the average of 3 runs per test:
-
-dbench 1.0.2:
-  client count  original   patched   improvement
-     1           1180.99   1320.52   11.8%
-     6           3442.35   3606.76    4.7%
-    12           5201.84   5441.22    4.6%
-    48          11923.20  12638.30    6.0%
-   128          14713.30  15314.10    4.1%
-   256          15628.90  16208.00    3.7%
-
-sqlite 2.2.0
-  threads      original    patched  improvement
-    16             7.93       7.19   -9.3%
-    32            13.51      15.48   14.6%
-    64            28.87      34.17   18.4%
-    96            45.47      48.92    7.6%
-
-iozone 1.9.6, 8GB file size:
-I/O Size  Test original   patched   improvement
-   4KB    Read  6838.45   6939.40     1.5%
-   2MB    Read  7360.80   7464.94     1.4%
-   4KB   Write    31.75     47.89    50.8%
-   2MB   Write  1653.08   1817.86    10.6%
-
-fio 2.1.0, Engine: Sync, Block Size 4K, I/O rate MB/sec
-Test          Direct  Jobs  original  patched  improvement
-Random Read       No   1        48.3     54.5   12.8%
-Random Read       No   2        48.1     54.3   12.9%
-Random Read       No   4        48.0     54.4   13.3%
-Random Read       No   8        48.1     54.4   13.1%
-Random Read       No  16        48.2     54.4   12.9%
-Random Read       No  32        48.2     54.5   13.1%
-Random Read       No  64        48.3     54.5   12.8%
-Random Read       No  96        48.1     54.3   12.9%
-Geometric Mean:                 48.2     54.4   13.0%
-
-Random Read      Yes   1        50.7     56.0   10.5%
-Random Read      Yes   2        50.7     55.9   10.3%
-Random Read      Yes   4        50.7     55.9   10.3%
-Random Read      Yes   8        50.7     56.0   10.5%
-Random Read      Yes  16        50.7     55.9   10.3%
-Random Read      Yes  32        50.5     55.9   10.7%
-Random Read      Yes  64        50.6     55.8   10.3%
-Random Read      Yes  96        50.7     55.8   10.1%
-Geometric Mean:                 50.7     55.9   10.3%
-
-Random Write      No   1        1488     1487   -0.1%
-Random Write      No   2        1492     1483   -0.6%
-Random Write      No   4        1485     1480   -0.3%
-Random Write      No   8        1484     1479   -0.3%
-Random Write      No  16        1490     1483   -0.5%
-Random Write      No  32        1483     1490    0.5%
-Random Write      No  64        1486     1485   -0.1%
-Random Write      No  96        1476     1481    0.3%
-Geometric Mean:                 1476     1477    0.1%
-
-Random Write     Yes   1         298      335   12.4%
-Random Write     Yes   2         297      335   12.8%
-Random Write     Yes   4         298      334   12.1%
-Random Write     Yes   8         299      337   12.7%
-Random Write     Yes  16         296      332   12.2%
-Random Write     Yes  32         298      331   11.1%
-Random Write     Yes  64         297      335   12.8%
-Random Write     Yes  96         298      335   12.4%
-Geometric Mean:                  298      334   12.3%
-
-Sequential Read   No   1        2622    2688     2.5%
-Sequential Read   No   2        2647    2692     1.7%
-Sequential Read   No   4        2634    2692     2.2%
-Sequential Read   No   8        2661    2673     0.5%
-Sequential Read   No  16        2673    2689     0.6%
-Sequential Read   No  32        2667    2681     0.5%
-Sequential Read   No  64        2640    2673     1.3%
-Sequential Read   No  96        2635    2672     1.4%
-Geometric Mean:                 2647    2683     1.1%
-
-Sequential Read  Yes   1        87.4   105.0    20.1%
-Sequential Read  Yes   2        87.5   104.0    18.9%
-Sequential Read  Yes   4        87.3   105.0    20.3%
-Sequential Read  Yes   8        87.2   105.0    20.4%
-Sequential Read  Yes  16        87.4   105.0    20.1%
-Sequential Read  Yes  32        86.5   105.0    21.4%
-Sequential Read  Yes  64        87.0   104.0    19.5%
-Sequential Read  Yes  96        87.2   105.0    20.4%
-Geometric Mean:                 87.2   104.7    20.1%
-
-Sequential Write  No   1        1868    1870     0.1%
-Sequential Write  No   2        1879    1881     0.1%
-Sequential Write  No   4        1877    1878     0.1%
-Sequential Write  No   8        1887    1874    -0.7%
-Sequential Write  No  16        1878    1885     0.4%
-Sequential Write  No  32        1875    1878     0.2%
-Sequential Write  No  64        1888    1879    -0.5%
-Sequential Write  No  96        1892    1888    -0.5%
-Geometric Mean:                 1881    1879    -0.2%
-
-Sequential Write Yes   1         307     339    10.4%
-Sequential Write Yes   2         306     341    11.4%
-Sequential Write Yes   4         306     338    10.5%
-Sequential Write Yes   8         307     339    10.4%
-Sequential Write Yes  16         307     342    11.4%
-Sequential Write Yes  32         307     337     9.8%
-Sequential Write Yes  64         308     341    10.7%
-Sequential Write Yes  96         306     341    11.4%
-Geometric Mean:                  307     340    10.7%
-
-For kernel builds, where all CPUs are fully loaded with a
-small performance improvement based on the results of 5 kernel:
-build test runs:
-
-Kernel build time (geomean of 5 kernel builds, real time)
-                  original   patched   improvement
-Geometric Mean:      37.63s    37.39   0.8%
-% Std.Dev.:           0.37%    0.31%
-
-By default, CPU power sleep demotion blocking is set to run
-for 1 ms on PCIe NVME I/O requests.
-
-Signed-off-by: Colin Ian King <colin.i.king@intel.com>
----
- drivers/cpuidle/Kconfig          |  10 +++
- drivers/cpuidle/Makefile         |   1 +
- drivers/cpuidle/governors/menu.c |   4 ++
- drivers/cpuidle/psd.c            | 104 +++++++++++++++++++++++++++++++
- drivers/nvme/host/pci.c          |   3 +
- include/linux/cpuidle_psd.h      |  32 ++++++++++
- 6 files changed, 154 insertions(+)
- create mode 100644 drivers/cpuidle/psd.c
- create mode 100644 include/linux/cpuidle_psd.h
-
-diff --git a/drivers/cpuidle/Kconfig b/drivers/cpuidle/Kconfig
-index cac5997dca50..b47b8e9e77b6 100644
---- a/drivers/cpuidle/Kconfig
-+++ b/drivers/cpuidle/Kconfig
-@@ -81,6 +81,16 @@ config HALTPOLL_CPUIDLE
+--- ./drivers/cpuidle/governors/menu.c.orig	2025-09-29 00:39:22.000000000 +0300
++++ ./drivers/cpuidle/governors/menu.c	2025-10-25 21:47:12.544682137 +0300
+@@ -16,6 +16,7 @@
+ #include <linux/tick.h>
+ #include <linux/sched/stat.h>
+ #include <linux/math64.h>
++#include <linux/cpuidle_psd.h>
+ 
+ #include "gov.h"
+ 
+@@ -240,6 +241,9 @@
+ 		menu_update_intervals(data, UINT_MAX);
+ 	}
+ 
++	if (have_prevent_sleep_demotion())
++		latency_req = 0;
++
+ 	/* Find the shortest expected idle interval. */
+ 	predicted_ns = get_typical_interval(data) * NSEC_PER_USEC;
+ 	if (predicted_ns > RESIDENCY_THRESHOLD_NS) {
+--- ./drivers/cpuidle/Kconfig.orig	2025-09-29 00:39:22.000000000 +0300
++++ ./drivers/cpuidle/Kconfig	2025-10-25 21:47:12.544185425 +0300
+@@ -81,6 +81,16 @@
  	 before halting in the guest (more efficient than polling in the
  	 host via halt_poll_ns for some scenarios).
  
@@ -833,11 +406,9 @@ index cac5997dca50..b47b8e9e77b6 100644
  endif
  
  config ARCH_NEEDS_CPU_IDLE_COUPLED
-diff --git a/drivers/cpuidle/Makefile b/drivers/cpuidle/Makefile
-index 1de9e92c5b0f..b219d488fe41 100644
---- a/drivers/cpuidle/Makefile
-+++ b/drivers/cpuidle/Makefile
-@@ -12,6 +12,7 @@ obj-$(CONFIG_DT_IDLE_STATES)		  += dt_idle_states.o
+--- ./drivers/cpuidle/Makefile.orig	2025-09-29 00:39:22.000000000 +0300
++++ ./drivers/cpuidle/Makefile	2025-10-25 21:47:12.544276403 +0300
+@@ -12,6 +12,7 @@
  obj-$(CONFIG_DT_IDLE_GENPD)		  += dt_idle_genpd.o
  obj-$(CONFIG_ARCH_HAS_CPU_RELAX)	  += poll_state.o
  obj-$(CONFIG_HALTPOLL_CPUIDLE)		  += cpuidle-haltpoll.o
@@ -845,33 +416,8 @@ index 1de9e92c5b0f..b219d488fe41 100644
  
  ##################################################################################
  # ARM SoC drivers
-diff --git a/drivers/cpuidle/governors/menu.c b/drivers/cpuidle/governors/menu.c
-index 52d5d26fc7c6..eb5f04def188 100644
---- a/drivers/cpuidle/governors/menu.c
-+++ b/drivers/cpuidle/governors/menu.c
-@@ -16,6 +16,7 @@
- #include <linux/tick.h>
- #include <linux/sched/stat.h>
- #include <linux/math64.h>
-+#include <linux/cpuidle_psd.h>
- 
- #include "gov.h"
- 
-@@ -224,6 +225,9 @@ static int menu_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
- 		data->needs_update = 0;
- 	}
- 
-+	if (have_prevent_sleep_demotion())
-+		latency_req = 0;
-+
- 	/* Find the shortest expected idle interval. */
- 	predicted_ns = get_typical_interval(data) * NSEC_PER_USEC;
- 	if (predicted_ns > RESIDENCY_THRESHOLD_NS) {
-diff --git a/drivers/cpuidle/psd.c b/drivers/cpuidle/psd.c
-new file mode 100644
-index 000000000000..92251178a0b9
---- /dev/null
-+++ b/drivers/cpuidle/psd.c
+--- ./drivers/cpuidle/psd.c.orig	2025-10-25 21:47:12.544788946 +0300
++++ ./drivers/cpuidle/psd.c	2025-10-25 21:47:12.544784928 +0300
 @@ -0,0 +1,104 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
@@ -977,27 +523,25 @@ index 000000000000..92251178a0b9
 +}
 +
 +late_initcall(prevent_sleep_demotion_init);
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index e0bfe04a2bc2..2bfee1a5bf78 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -28,6 +28,7 @@
+--- ./drivers/nvme/host/pci.c.orig	2025-10-25 21:45:22.821378195 +0300
++++ ./drivers/nvme/host/pci.c	2025-10-25 21:47:42.351310504 +0300
+@@ -27,6 +27,7 @@
+ #include <linux/io-64-nonatomic-lo-hi.h>
  #include <linux/io-64-nonatomic-hi-lo.h>
  #include <linux/sed-opal.h>
- #include <linux/pci-p2pdma.h>
 +#include <linux/cpuidle_psd.h>
  
  #include "trace.h"
  #include "nvme.h"
-@@ -1044,6 +1045,7 @@ static blk_status_t nvme_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	ret = nvme_prep_rq(dev, req);
+@@ -1154,6 +1155,7 @@
+ 	ret = nvme_prep_rq(req);
  	if (unlikely(ret))
  		return ret;
 +	prevent_sleep_demotion();
  	spin_lock(&nvmeq->sq_lock);
  	nvme_sq_copy_cmd(nvmeq, &iod->cmd);
  	nvme_write_sq_db(nvmeq, bd->last);
-@@ -1089,6 +1091,7 @@ static void nvme_queue_rqs(struct rq_list *rqlist)
+@@ -1199,6 +1201,7 @@
  	struct nvme_queue *nvmeq = NULL;
  	struct request *req;
  
@@ -1005,11 +549,8 @@ index e0bfe04a2bc2..2bfee1a5bf78 100644
  	while ((req = rq_list_pop(rqlist))) {
  		if (nvmeq && nvmeq != req->mq_hctx->driver_data)
  			nvme_submit_cmds(nvmeq, &submit_list);
-diff --git a/include/linux/cpuidle_psd.h b/include/linux/cpuidle_psd.h
-new file mode 100644
-index 000000000000..5bcca5d53675
---- /dev/null
-+++ b/include/linux/cpuidle_psd.h
+--- ./include/linux/cpuidle_psd.h.orig	2025-10-25 21:47:12.545690820 +0300
++++ ./include/linux/cpuidle_psd.h	2025-10-25 21:47:12.545689357 +0300
 @@ -0,0 +1,32 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
@@ -1043,6 +584,4 @@ index 000000000000..5bcca5d53675
 +#endif
 +
 +#endif
--- 
-2.49.0
 
