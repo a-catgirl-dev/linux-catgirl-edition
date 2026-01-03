@@ -120,10 +120,10 @@ _minor=.3
 #
 # If the kernel breaks, disable this option.
 #
-# If unsure, select yes
+# If unsure, select no
 #
 # [^1]: https://lore.kernel.org/lkml/CA+55aFz2sNBbZyg-_i8_Ldr2e8o9dfvdSfHHuRzVtP2VMAUWPg@mail.gmail.com/
-: "${_cflags_O3:=yes}"
+: "${_cflags_O3:=no}"
 
 # Enable Google's TCP BBR3
 #
