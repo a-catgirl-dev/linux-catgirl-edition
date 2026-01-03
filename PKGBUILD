@@ -445,12 +445,12 @@ _minor=.3
 
 # Disable hibernation
 #
-# I don't like hibernation - it stores your entire system memory into disk, which on SSDs, can reduce its lifespan
-# and on HDDs, might take a bit to resume.
+# I don't like hibernation - it stores your entire system memory into disk, which on SSDs, reduces its lifespan
+# dramatically.
 #
-# Use suspend-to-ram instead. I have no clue how your crappy laptops are draining battery while in s2idle/deep sleep.
-# Also, using suspend-then-hibernate won't fix the draining issue; suspend-and-hibernate wont fix the draining issue.
-# Fix your hardware.
+# Use suspend-to-ram instead. I have no clue how modern laptops are draining battery quickly while in s2idle/deep sleep.
+# Also, using suspend-then-hibernate won't fix the draining issue; the keyboard is often kept active waiting for
+# keypresses, for instance.
 #
 # There's also the fact that Linux mainline (currently) doesnt support hibernation if secure boot is enabled and the
 # lockdown LSM is also active.
