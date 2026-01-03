@@ -468,15 +468,15 @@ _minor=.3
 # If unsure, select no
 : "${_no_compressed_initramfs:=no}"
 
-# Disable VM support
+# Disable Virtual Machine support
 #
 # Makes the kernel optimized for bare metal by no longer providing virtual machine support
 # in particular, this disables KVM support, kernel guest support, xen drivers, et al.
 #
 # docker **desktop** (not regular docker) uses KVM.
 #
-# If unsure, select yes
-: "${_no_vm:=yes}"
+# If unsure, select no
+: "${_no_vm:=no}"
 
 # No foreign partitioning schemes
 #
