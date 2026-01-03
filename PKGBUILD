@@ -908,7 +908,7 @@ makedepends=(
 )
 
 _patchsource_cachyos="https://raw.githubusercontent.com/cachyos/kernel-patches/master/${_major}"
-_patchsource_xanmod="https://gitlab.com/xanmod/linux-patches/-/raw/master/linux-6.16.y-xanmod"
+_patchsource_xanmod="https://gitlab.com/xanmod/linux-patches/-/raw/master/linux-6.18.y-xanmod"
 _patchsource_clear="https://raw.githubusercontent.com/a-catgirl-dev/linux-catgirl-edition/refs/heads/dev/patches" # change this to clears' own URL
 _nv_ver=590.48.01
 _nv_pkg="NVIDIA-Linux-x86_64-${_nv_ver}"
@@ -929,7 +929,6 @@ if [ "${_import_xanmod_patchset:=yes}" = "yes" ]; then
     source+=(
     "${_patchsource_xanmod}/xanmod/0010-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch"
     "${_patchsource_xanmod}/xanmod/0014-XANMOD-mm-Raise-max_map_count-default-value.patch"
-    "${_patchsource_xanmod}/xanmod/0016-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch"
     )
 fi
 
