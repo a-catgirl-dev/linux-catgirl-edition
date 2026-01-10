@@ -905,6 +905,8 @@ makedepends=(
   tar
   xz
   zstd
+  flex
+  bison
 )
 
 _patchsource_cachyos="https://raw.githubusercontent.com/cachyos/kernel-patches/master/${_major}"
