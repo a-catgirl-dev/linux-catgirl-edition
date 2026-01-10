@@ -188,7 +188,7 @@ _minor=.4
 # If unsure, select `lazy`
 #
 # [^1]: except critical sections
-: "${_preempt:=lazy}"
+: "${_preempt:=full}"
 
 # Optimize kernel for a specific processor
 #
