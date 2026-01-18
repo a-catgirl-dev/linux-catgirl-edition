@@ -562,12 +562,14 @@ _minor=.4
 #
 # PSI is a linux kernel feature that provides insight into resource contention. Its a nifty feature for finding
 # which parts of your system are stalled.
-# Those parts include: CPU; IO; memory; and IRQs (if irq time accounting is enabled, see above).
 #
-# it is used by some monitoring applications to proactively try to restabilize a system during
-# times of high contention, such as oomd, systemd-oomd and nohang[^1]
+# It is used by some monitoring applications to proactively try to restabilize a system during
+# times of high contention. Some of those include oomd, systemd-oomd and nohang[^1]
 #
-# valid options:
+# It is also a dependency of the binder module, so waydroid will stop working if you turn it off.
+# https://docs.waydro.id/debugging/troubleshooting#warning-service-manager-dev-binder-has-died
+#
+# Valid options:
 # - `yes`: PSI tracking enabled by default; has runtime performance overhead by default
 # - `optin`: require kernel parameter[^2] to enable PSI tracking; negligible runtime performance overhead by default[^3]
 # - `no`: PSI tracking not compiled; no performance overhead and lower memory usage
