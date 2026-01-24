@@ -1354,7 +1354,8 @@ prepare() {
             -d SCSI_CONSTANTS \
             -d SCSI_LOGGING \
             -d ZSMALLOC_STAT \
-            -d OVMF_DEBUG_LOG
+            -d OVMF_DEBUG_LOG \
+            -d SND_DEBUG
     fi
 
     if [ "$_disable_debugfs" = "yes" ]; then
