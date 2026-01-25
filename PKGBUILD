@@ -1230,7 +1230,7 @@ prepare() {
 
     if [ "$_no_32bit" = "yes" ]; then
         echo "Dropping 32-bit"
-        scripts/config -d IA32_EMULATION
+        scripts/config -d IA32_EMULATION -d COMPAT_32BIT_TIME
     fi
 
     if [ "$_disable_ldt_syscall" = "yes" ]; then
