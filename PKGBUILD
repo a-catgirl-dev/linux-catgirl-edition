@@ -857,7 +857,7 @@ _minor=.8
 #
 # WARNING: You cannot turn on the mitigations at boot-time if this option is disabled.
 #
-# CPU mitigations protect the kernel against speculative execution flaws like meltdown, zenbleed, spectre, etc.
+# CPU mitigations protect the system against speculative execution flaws like meltdown, zenbleed, spectre, etc.
 # Those mitigations often have a performance penalty on most systems.
 #
 # Disabling it reduces overhead during syscalls as conditional checks[^1] are compiled out.
