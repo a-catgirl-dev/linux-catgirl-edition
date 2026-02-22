@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> Linux Catgirl Edition development has moved to Codeberg. This repository has been abandoned and will **not** become a mirror.
+> The new repository is situated at [https://codeberg.org/a-catgirl/linux-catgirl-edition](https://codeberg.org/a-catgirl/linux-catgirl-edition)
+
+---
+
 # The Linux Catgirl Edition kernel
 
 A custom Linux build system forked from the work by [CachyOS](https://github.com/cachyos/linux-cachyos), aiming to provide the foundation for compiling highly scalable Linux systems.
